@@ -11,21 +11,82 @@ number = uicontrol('style','text', ...
     'fontsize',12, ...
     'position',[20,400,50,20]);
 
+
 %% simulation parameters
 n  = 200; %domain size n x n
-t_end = 100; %time of simulation
-age_limit = 5; % age limit of TACs
-
+t_end = 2000; %time of simulation
+age_limit = 5; % age limit of TACs 
 %% cell behaviour
-pSTEM_SymmDiv = 0.25; %probability of SYMMETRIC division of STEM CELLS
-pSTEM_AsymmDiv = 0.75; %probability of ASYMMETRIC division STEM to TAC transition
+pSTEM_SymmDiv = .5; %probability of SYMMETRIC division of STEM CELLS
+pSTEM_AsymmDiv = 0.5; %probability of ASYMMETRIC division STEM to TAC transition
 
 pTAC_SymmDiv = 1; %probability of SYMMETRIC division of TAC CELLS
-pTAC_Dediff = 0.0; %probability of TAC to STEM transition
-pTAC_move = 0; %probability of motility of TAC CELLS
+pTAC_Dediff = 0.001; %probability of TAC to STEM transition
+pTAC_move = 0.2; %probability of motility of TAC CELLS
 
-death_prob = 0; %frequency of random death
+death_prob = 0.01; %frequency of random death
+%% oxygen dynamics
+    t_step = 10;
+    tO = [0:t_step:t_end];
+    p = zeros(length(tO),1);
+    
+    for i = 1:length(tO);
+        p(i) = O2Lattice(tO(i));
+    end
+    
+ %% linear oxygen progression
+    
+    t_step = .5;
+    tG = [0:t_step:t_end];
+    k = zeros(length(tG),1);
+    
+    for j = 1:length(tG);
+        k(j) = OxygenDynamics(tG(j));
+    end
+    
 
+    
+%% Oxygen diffusion    
+% mkdir('diffusionfig1');
+% fig = figure('Color',[0.5 0.5 0.5]);
+% 
+% xmin = -30;
+% xmax = -xmin;
+% ymin = xmin;
+% ymax = xmax;
+% 
+% h= 2;
+% Nx = 1 + round((xmax-xmin)/h);
+% Ny = 1 + round((ymax-ymin)/h);
+% 
+% dt = 0.3;   %time step
+% D= 2;       %diffusion coefficient
+% 
+% drug = zeros(Nx,Ny);
+% % drug(11,18) = 15;   %source of drug
+% % drug(18,13) = 15;
+% 
+% for iter =1:250
+% %     drug(18,18) = 15;
+% %     drug(11,13) = 15;
+% 
+%     drug(:,1) = 5;
+% 
+% 
+%     for i=2:Nx-1
+%         for j=2:Ny-1
+%             drug(i,j) = drug(i,j) + ((D*dt)/(h*h))*...
+%                 (drug(i-1,j)+drug(i+1,j)+drug(i,j-1)+drug(i,j+1)- 4*drug(i,j));
+%         end
+%     end
+% end
+%     hold on
+%     contourf(xmin:h:xmax, ymin:h:ymax, drug,[0:0.1:2], 'edgecolor', 'none');
+%     axis equal;
+%     colormap(hsv)
+%     colorbar;
+%     pause(0.01);
+%     hold off
 %% initialize the domain with all type 0 cells
 
 cells = zeros(n,n);
@@ -63,7 +124,7 @@ for j = 1:t_end
             %what to do if you pick a STEM CELL
         elseif cells(pc) == 0.5
             
-            % find(cells(pc+randperm([-n n -1 +1])),0)  Jan's speed up
+            %find(cells(pc+randperm([-n n -1 +1])),0)  Jan's speed up
             [emptyp1,emptym1,emptypn,emptymn,emptypnp1,emptymnp1,emptymnm1,emptypnm1] = SpaceCheck8(pc,cellsnew,n); %check for space
             
             %if there is empty space, try to divide
@@ -97,7 +158,7 @@ for j = 1:t_end
             
             %if there is empty space, try to do something
             if emptyp1 || emptym1 || emptypn || emptymn || emptypnp1 || emptymnp1 || emptymnm1 || emptypnm1 == 1
-                rn = rand;
+                rn = rand();
                 
                 if rn <= pTAC_SymmDiv %probability of TAC cells growing
                     
@@ -144,6 +205,7 @@ for j = 1:t_end
         colormap jet
         axis equal
         axis tight
+        hold off
         
         pause(0.000000001)
     end
@@ -165,22 +227,25 @@ for j = 1:t_end
     set(number,'string',num2str(stepnumber))
     
 end
+% figure()
+% plot(tO,p)
+% % figure() 
 
 plot_start = 1;
 
 figure('Position', [600 1600 1100 500])
 
-subplot(2,1,1)
+subplot(2,2,1)
 h=plot(t(plot_start:end),totalSTEMcells(plot_start:end),t(plot_start:end),totalTACcells(plot_start:end),t(plot_start:end),totalcells(plot_start:end),'.');
 set(h,'linewidth',3);
 set(h,'markersize',10);
 set(gca,'fontsize',16);
 title({'TAC-STEM CA'});
 legend('STEM','TAC','total');
-%xlabel('timestep');
-%ylabel({'proportion';'of population'});
+xlabel('timestep');
+ylabel({'proportion';'of population'});
 
-subplot(2,1,2)
+subplot(2,2,2)
 o=plot(t(plot_start:end),STEMprop(plot_start:end),t(plot_start:end),TACprop(plot_start:end));
 set(o,'linewidth',3);
 set(o,'markersize',10);
@@ -188,5 +253,10 @@ set(gca,'fontsize',16);
 title({'proportions'});
 legend('STEM','TAC');
 
+subplot(2,2,3)
+plot(tO,p,'linewidth', 2)
+
+subplot(2,2,4)
+plot(tG,k,'linewidth', 2)
 
 
