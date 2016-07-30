@@ -11,21 +11,30 @@ number = uicontrol('style','text', ...
     'fontsize',12, ...
     'position',[20,400,50,20]);
 
+
 %% simulation parameters
 n  = 200; %domain size n x n
-t_end = 100; %time of simulation
+t_end = 1000; %time of simulation
 age_limit = 5; % age limit of TACs
 
 %% cell behaviour
-pSTEM_SymmDiv = 0.25; %probability of SYMMETRIC division of STEM CELLS
-pSTEM_AsymmDiv = 0.75; %probability of ASYMMETRIC division STEM to TAC transition
+pSTEM_SymmDiv = 0.5; %probability of SYMMETRIC division of STEM CELLS
+pSTEM_AsymmDiv = 0.5; %probability of ASYMMETRIC division STEM to TAC transition
 
 pTAC_SymmDiv = 1; %probability of SYMMETRIC division of TAC CELLS
-pTAC_Dediff = 0.0; %probability of TAC to STEM transition
-pTAC_move = 0; %probability of motility of TAC CELLS
+pTAC_Dediff = .01; %probability of TAC to STEM transition
+pTAC_move = 0.2; %probability of motility of TAC CELLS
 
-death_prob = 0; %frequency of random death
-
+death_prob = 0.1; %frequency of random death
+% %% oxygen dynamics
+%     t_step = 10;
+%     tO = [0:t_step:t_end];
+%     p = zeros(length(tO),1);
+%     
+%     for i = 1:length(tO);
+%         p(i) = O2Lattice(t0(i));
+%     end
+%     plot(tO,p,'linewidth', 2)
 %% initialize the domain with all type 0 cells
 
 cells = zeros(n,n);
@@ -63,7 +72,7 @@ for j = 1:t_end
             %what to do if you pick a STEM CELL
         elseif cells(pc) == 0.5
             
-            % find(cells(pc+randperm([-n n -1 +1])),0)  Jan's speed up
+            %find(cells(pc+randperm([-n n -1 +1])),0)  Jan's speed up
             [emptyp1,emptym1,emptypn,emptymn,emptypnp1,emptymnp1,emptymnm1,emptypnm1] = SpaceCheck8(pc,cellsnew,n); %check for space
             
             %if there is empty space, try to divide
@@ -177,8 +186,8 @@ set(h,'markersize',10);
 set(gca,'fontsize',16);
 title({'TAC-STEM CA'});
 legend('STEM','TAC','total');
-%xlabel('timestep');
-%ylabel({'proportion';'of population'});
+xlabel('timestep');
+ylabel({'proportion';'of population'});
 
 subplot(2,1,2)
 o=plot(t(plot_start:end),STEMprop(plot_start:end),t(plot_start:end),TACprop(plot_start:end));
