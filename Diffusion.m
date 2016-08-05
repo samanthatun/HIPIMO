@@ -5,8 +5,8 @@ function [ O2diff ] = Diffusion( x,y,t )
 mkdir('diffusionfig1');
 fig = figure('Color',[0.5 0.5 0.5]);
 
-xmin = -100;
-xmax = -xmin;
+xmin = 0;
+xmax = 200;
 ymin = xmin;
 ymax = xmax;
 
@@ -41,7 +41,7 @@ for iter =1:10000
 end
 contourf(xmin:h:xmax, ymin:h:ymax, O2diff,[0:0.1:2], 'edgecolor', 'none');
     axis equal;
-    colormap(hsv)
+    colormap(jet)
     colorbar;
     pause(0.01);
     %fileName=['diffusionfig1/fig_',num2str(iter)];

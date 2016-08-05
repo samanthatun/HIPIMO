@@ -6,8 +6,8 @@ close all;
 mkdir('diffusionfig1');
 fig = figure('Color',[0.5 0.5 0.5]);
 
-xmin = -30;
-xmax = -xmin;
+xmin = 0;
+xmax = 150;
 ymin = xmin;
 ymax = xmax;
 
@@ -16,7 +16,7 @@ Nx = 1 + round((xmax-xmin)/h);
 Ny = 1 + round((ymax-ymin)/h);
 
 dt = 0.3;   %time step
-D= 2;       %diffusion coefficient
+D= 5.7;       %diffusion coefficient
 
 O2 = zeros(Nx,Ny);
 % O2(11,18) = 15;   %source of O2
@@ -26,8 +26,8 @@ for iter =1:250
 %     O2(18,18) = 15;
 %     O2(11,13) = 15;
 
-    O2(:,1) = 5;
-
+    O2(:,1) = 5.7;
+    O2(:,50) = 5.7;
 
     for i=2:Nx-1
         for j=2:Ny-1
@@ -41,6 +41,15 @@ for iter =1:250
     colormap(hsv)
     colorbar;
     pause(0.01);
+    
+    
+
     %fileName=['diffusionfig1/fig_',num2str(iter)];
     %saveas (fig, fileName, 'jpg');
 end %end of loop for 1:100
+
+
+
+
+v = VideoWriter('newfile.mj2','Motion JPEG 2000');
+    v.CompressionRatio = 3;

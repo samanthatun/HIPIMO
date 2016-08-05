@@ -14,8 +14,9 @@ number = uicontrol('style','text', ...
 
 %% simulation parameters
 n  = 200; %domain size n x n
-t_end = 2000; %time of simulation
+t_end = 1000; %time of simulation
 age_limit = 5; % age limit of TACs 
+
 %% cell behaviour
 pSTEM_SymmDiv = .5; %probability of SYMMETRIC division of STEM CELLS
 pSTEM_AsymmDiv = 0.5; %probability of ASYMMETRIC division STEM to TAC transition
@@ -24,7 +25,7 @@ pTAC_SymmDiv = 1; %probability of SYMMETRIC division of TAC CELLS
 pTAC_Dediff = 0.001; %probability of TAC to STEM transition
 pTAC_move = 0.2; %probability of motility of TAC CELLS
 
-death_prob = 0.01; %frequency of random death
+death_prob = 0.001; %frequency of random death
 %% oxygen dynamics
     t_step = 10;
     tO = [0:t_step:t_end];
@@ -44,8 +45,16 @@ death_prob = 0.01; %frequency of random death
         k(j) = OxygenDynamics(tG(j));
     end
     
+%% OER
 
-    
+%     t_step = 1;
+%     tK = [0:t_step:t_end];
+%     r = zeros(length(tK),1);
+%     
+%     for d = 1:length(tK);
+%         r(d) = OER(tK(d));
+%     end
+%     
 %% Oxygen diffusion    
 % mkdir('diffusionfig1');
 % fig = figure('Color',[0.5 0.5 0.5]);
@@ -158,7 +167,7 @@ for j = 1:t_end
             
             %if there is empty space, try to do something
             if emptyp1 || emptym1 || emptypn || emptymn || emptypnp1 || emptymnp1 || emptymnm1 || emptypnm1 == 1
-                rn = rand();
+                rn = rand;
                 
                 if rn <= pTAC_SymmDiv %probability of TAC cells growing
                     
@@ -207,7 +216,7 @@ for j = 1:t_end
         axis tight
         hold off
         
-        pause(0.000000001)
+        pause(0.0000000000001)
     end
     
     totalTACcells(j)=length(find(cellsnew==1.0));
@@ -225,8 +234,30 @@ for j = 1:t_end
     
     stepnumber = 1 + str2double(get(number,'string'));
     set(number,'string',num2str(stepnumber))
-    
+
+x = 0:1:200;
+figure(1)
+filename = 'stemCAmovie.gif';
+
+frame = getframe(1);
+      im = frame2im(frame);
+      [imind,cm] = rgb2ind(im,256);
+      if j == 1;
+          imwrite(imind,cm,filename,'gif', 'Loopcount',inf);
+      else
+          imwrite(imind,cm,filename,'gif','WriteMode','append');
+      end  
 end
+ 
+% 
+%  for   k = 1:100;
+% 	plot(fft(eye(k+16)))
+% 	axis([0 200 0 200])
+% 	M(k) = getframe();
+%  end
+%  
+
+
 % figure()
 % plot(tO,p)
 % % figure() 
@@ -253,10 +284,9 @@ set(gca,'fontsize',16);
 title({'proportions'});
 legend('STEM','TAC');
 
-subplot(2,2,3)
-plot(tO,p,'linewidth', 2)
-
-subplot(2,2,4)
-plot(tG,k,'linewidth', 2)
-
+% subplot(2,2,3)
+% plot(tO,p,'linewidth', 2)
+% 
+% subplot(2,2,4)
+% plot(tG,k,'linewidth', 2)
 
